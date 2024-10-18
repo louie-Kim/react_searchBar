@@ -1,36 +1,28 @@
-import { getPosts } from "./api/axios";
-import {useState, useEffect} from 'react'
-import SearchBar from "./SearchBar";
-import ListPage from "./ListPage";
+import React from 'react';
+import { useSelector } from 'react-redux';
+import SearchBar from './SearchBar';
+import ListPage from './ListPage';
 
 function App() {
+  
+  // posts 상태와 fetch 상태 가져오기
+  const postStatus = useSelector((state) => state.posts.status);
+  const error = useSelector((state) => state.posts.error);
 
-  const [posts, setPosts] = useState([])
-  const [searchResults, setSearchResults] = useState([])
-
-  useEffect(()=>{
-
-    getPosts()
-    .then( json => {
-      setPosts(json)
-      return json
-    })
-    .then(json=>{
-      setSearchResults(json)
-    })
-
-  },[])
+  // index에서 store.dispatch(fetchPosts());
 
   return (
     <>
-      <SearchBar posts={posts} setSearchResults={setSearchResults} />
-      <ListPage searchResults={searchResults} />
+      {postStatus === 'loading' && <p>Loading...</p>}
+      {postStatus === 'failed' && <p>Error: {error}</p>}
+      {postStatus === 'succeeded' && (
+        <>
+          <SearchBar/>
+          <ListPage/>
+        </>
+      )}
     </>
-  )
+  );
 }
+
 export default App;
-
-
-
-
-
