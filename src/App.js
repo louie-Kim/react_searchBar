@@ -11,6 +11,13 @@ function App() {
 
   // index에서 store.dispatch(fetchPosts());
 
+  // useEffect(() => {
+  //   if (postStatus === 'idle') {
+  //     // 컴포넌트가 마운트될 때 데이터를 가져옴
+  //     dispatch(fetchPosts());
+  //   }
+  // }, [postStatus, dispatch]);
+
   return (
     <>
       {postStatus === 'loading' && <p>Loading...</p>}
