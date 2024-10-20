@@ -1,22 +1,21 @@
-import React from 'react'
-import Post from './Post'
-import { useSelector } from 'react-redux'
+import React from 'react';
+import Post from './Post';
+import { useSelector } from 'react-redux';
+import { selectFilteredPosts } from './redux/PostSlice';
 
 const ListPage = () => {
 
-const searchResults = useSelector((state)=> state.posts.searchResults)
+  // 필터링된 검색 결과 가져오기
+  // searchResults는 메모이제이션된 값
+  const searchResults = useSelector(selectFilteredPosts); 
 
-console.log("searchResults",searchResults);
+  const results = searchResults.map((post) => <Post key={post.id} post={post} />); // 포스트 목록 렌더링
 
-  const results = searchResults.map( post=> <Post key={post.id} post={post}  /> )  
-  console.log("ListPage[]",  results);
-  
-  const content = results?.length ? results : <article><p>No Matching Posts</p></article>
-  
+  const content = results.length ? results : <article><p>No Matching Posts</p></article>;
+
   return (
     <main>{content}</main>
-  )
+  );
+};
 
-}
-
-export default ListPage
+export default ListPage;
