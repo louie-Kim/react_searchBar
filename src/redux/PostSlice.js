@@ -4,6 +4,8 @@ import axios from 'axios';
 // createAsyncThunk를 사용하여 비동기 액션 생성
 export const fetchPosts = createAsyncThunk('posts/fetchPosts', async () => {
   const response = await axios.get('https://jsonplaceholder.typicode.com/posts');
+  // const response = await axios.get(`https://jsonplaceholder.typicode.com/posts?_page=${pageParam}&_limit=10`);
+
   return response.data; // -> action.payload
 });
 
@@ -11,7 +13,6 @@ const postsSlice = createSlice({
   name: 'posts',
   initialState: {
     posts: [], // 모든 포스트 데이터
-    // searchResults: [], // 검색 결과 데이터
     searchTerm: '', // 검색어 상태 추가
     status: 'idle', // 요청 상태
     error: null, // 에러 상태
@@ -32,7 +33,7 @@ const postsSlice = createSlice({
       .addCase(fetchPosts.fulfilled, (state, action) => {
         state.status = 'succeeded';
         state.posts = action.payload;
-        state.searchResults = action.payload; // 초기 검색 결과는 모든 포스트로 설정
+        // state.searchResults = action.payload; // 초기 검색 결과는 모든 포스트로 설정
       })
       .addCase(fetchPosts.rejected, (state, action) => {
         state.status = 'failed';
