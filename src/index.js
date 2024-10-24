@@ -8,7 +8,7 @@ import { fetchPosts } from './redux/PostSlice';
 // import { useSelector, useDispatch } from 'react-redux';
 import store from './redux/store';
 
-store.dispatch(fetchPosts());
+store.dispatch(fetchPosts(1));
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(

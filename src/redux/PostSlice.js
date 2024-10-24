@@ -1,13 +1,22 @@
 import { createSlice, createAsyncThunk, createSelector } from '@reduxjs/toolkit';
 import axios from 'axios';
 
-// createAsyncThunk를 사용하여 비동기 액션 생성
-export const fetchPosts = createAsyncThunk('posts/fetchPosts', async () => {
-  const response = await axios.get('https://jsonplaceholder.typicode.com/posts');
-  // const response = await axios.get(`https://jsonplaceholder.typicode.com/posts?_page=${pageParam}&_limit=10`);
-
-  return response.data; // -> action.payload
-});
+export const fetchPosts = createAsyncThunk(
+  'posts/fetchPosts',
+  async (pageParam, { rejectWithValue }) => {
+    console.log("pageParam",pageParam);
+    
+    try {
+      const response = await axios.get(
+        `https://jsonplaceholder.typicode.com/posts?_page=${pageParam}&_limit=5`
+      );
+      // return { data: response.data, page: pageParam }; // 데이터와 페이지 정보를 반환
+      return response.data; // 데이터와 페이지 정보를 반환
+    } catch (error) {
+      return rejectWithValue(error.response.data); // -> state.error = action.payload 로전달
+    }
+  }
+);
 
 const postsSlice = createSlice({
   name: 'posts',
@@ -16,11 +25,10 @@ const postsSlice = createSlice({
     searchTerm: '', // 검색어 상태 추가
     status: 'idle', // 요청 상태
     error: null, // 에러 상태
+    page: 0, // 현재 페이지 번호
+    hasMore: null, // 더 불러올 데이터가 있는지 여부
   },
   reducers: {
-    setSearchResults: (state, action) => {
-      state.searchResults = action.payload;
-    },
     setSearchTerm: (state, action) => {
       state.searchTerm = action.payload; // 검색어 상태 업데이트
     },
@@ -31,13 +39,17 @@ const postsSlice = createSlice({
         state.status = 'loading';
       })
       .addCase(fetchPosts.fulfilled, (state, action) => {
+
+        console.log("fetched data",action.payload);
+        
         state.status = 'succeeded';
-        state.posts = action.payload;
-        // state.searchResults = action.payload; // 초기 검색 결과는 모든 포스트로 설정
+        state.posts = action.payload; // 기존 데이터에 새로운 데이터를 추가
+        state.page += 1;
+        state.hasMore = action.payload.length > 0; // 데이터가 더 없으면 hasMore를 false로 설정
       })
       .addCase(fetchPosts.rejected, (state, action) => {
         state.status = 'failed';
-        state.error = action.error.message;
+        state.error = action.payload;
       });
   },
 });
