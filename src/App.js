@@ -24,7 +24,7 @@ function App() {
       {postStatus === 'failed' && <p>Error: {error}</p>}
       {postStatus === 'succeeded' && (
         <>
-          {/* <SearchBar/> */}
+          <SearchBar/>
           <ListPage/>
         </>
       )}

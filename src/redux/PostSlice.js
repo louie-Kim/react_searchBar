@@ -8,7 +8,7 @@ export const fetchPosts = createAsyncThunk(
     
     try {
       const response = await axios.get(
-        `https://jsonplaceholder.typicode.com/posts?_page=${pageParam}&_limit=5`
+        `https://jsonplaceholder.typicode.com/posts?_page=${pageParam}&_limit=10`
       );
       // return { data: response.data, page: pageParam }; // 데이터와 페이지 정보를 반환
       return response.data; // 데이터와 페이지 정보를 반환
@@ -30,7 +30,12 @@ const postsSlice = createSlice({
   },
   reducers: {
     setSearchTerm: (state, action) => {
+      console.log("검색어 ", action.payload);
+      
       state.searchTerm = action.payload; // 검색어 상태 업데이트
+      // state.page = 0;                    // 페이지 번호 초기화
+      // state.posts = [];                  // 기존 포스트 초기화
+      // state.hasMore = true;              // 더 불러올 데이터가 있도록 초기화
     },
   },
   extraReducers: (builder) => {
@@ -44,7 +49,7 @@ const postsSlice = createSlice({
         
         state.status = 'succeeded';
         state.posts = action.payload; // 기존 데이터에 새로운 데이터를 추가
-        state.page += 1;
+        state.page += 1 ;
         state.hasMore = action.payload.length > 0; // 데이터가 더 없으면 hasMore를 false로 설정
       })
       .addCase(fetchPosts.rejected, (state, action) => {
@@ -58,7 +63,7 @@ const postsSlice = createSlice({
 const selectPosts = (state) => state.posts.posts;
 const selectSearchTerm = (state) => state.posts.searchTerm;
 
-// 메모이제이션된 검색 결과 선택자
+// 메모이제이션된 검색 결과 
 export const selectFilteredPosts = createSelector(
   [selectPosts, selectSearchTerm],
   (posts, searchTerm) => {
@@ -79,6 +84,6 @@ export const selectFilteredPosts = createSelector(
   }
 );
 
-export const { setSearchResults, setSearchTerm } = postsSlice.actions;
+export const { setSearchTerm } = postsSlice.actions;
 
 export default postsSlice.reducer;

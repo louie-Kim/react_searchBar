@@ -8,10 +8,12 @@ import { setSearchTerm } from './redux/PostSlice';
 const SearchBar = () => {
 
   // const [ searchTerm, setSearchTerm ]=useState('')
-  const dispatch = useDispatch(1);
+  const dispatch = useDispatch();
   
   // Redux 상태에서 검색어를 가져옴
   // const searchTerm = useSelector((state) => state.posts.searchTerm);
+
+  
 
   const handleSearchChange = (e) => {
     dispatch(setSearchTerm(e.target.value)); // Redux 상태로 검색어 업데이트
