@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchPosts, selectFilteredPosts, setPage } from './redux/PostSlice';
+import { fetchPosts, selectFilteredPosts, setPage, setPageAndFetchPosts, setPageGroup } from './redux/PostSlice';
 import { useInView } from "react-intersection-observer"
 import Post from './Post';
 
@@ -8,7 +8,7 @@ const ListPage = () => {
 
     const dispatch = useDispatch();
     const posts = useSelector(selectFilteredPosts); // 서칭으로 필터링된 포스트
-    const { status, error, page, hasMore} = useSelector((state) => state.posts);
+    const { status, error, page, hasMore, pageGroup} = useSelector((state) => state.posts);
     const { ref, inView } = useInView();
     
     
@@ -16,6 +16,57 @@ const ListPage = () => {
     // console.log("hasMore",hasMore); 
     // console.log("검색어로 조회된 포스팅수",posts);
     // console.log("status:",status);
+    // 현재 페이지 그룹에 따른 시작 페이지와 끝 페이지 설정
+
+    // 현재 pageGroup에 기반 : 0 일때 만
+    const startPage = pageGroup * 5 + 1;
+    const endPage = startPage + 4;
+
+    const handleNextGroup = () => {
+
+      const newPageGroup = pageGroup + 1;
+      dispatch(setPageGroup(newPageGroup));
+      
+      console.log("newPageGroup", newPageGroup);
+      
+       // pageGroup이 변경된 후의 값에 기반
+      const startPage = newPageGroup * 5 + 1; 
+      const endPage = startPage + 4; 
+      // console.log("버튼안 startPage", startPage);
+      // console.log("버튼안 endPage", startPage);
+      
+      // 페이지 범위 내의 각 페이지 데이터를 fetchPosts로 호출
+      for (let page = startPage; page <= endPage; page++) {
+          dispatch(fetchPosts(page));
+      }
+      
+    };
+  
+    const handlePreviousGroup = () => {
+      if (pageGroup > 0) {
+        const newPageGroup = pageGroup - 1;
+        dispatch(setPageGroup(newPageGroup));
+    
+        console.log("newPageGroup", newPageGroup);
+    
+        // pageGroup이 변경된 후의 값에 기반
+        const startPage = newPageGroup * 5 + 1;
+        const endPage = startPage + 4;
+        // console.log("버튼안 startPage", startPage);
+        // console.log("버튼안 endPage", endPage);
+    
+        // 페이지 범위 내의 각 페이지 데이터를 fetchPosts로 호출
+        for (let page = startPage; page <= endPage; page++) {
+          dispatch(fetchPosts(page));
+        }
+      }
+    };
+    
+
+    
+    
+    // console.log("pageGroup", startPage);
+    
     
     // // 무한 스크롤
     // // 스크롤이 바닥에 닿았을 때 다음 페이지를 불러옴
@@ -25,25 +76,30 @@ const ListPage = () => {
     //     dispatch(fetchPosts(page + 1));
     //   }
     // }, [inView, status, hasMore, page, dispatch]);
+      
+        
+    // const handleNextPage = () => {
+        //   if (hasMore) {
+        //     const nextPage = page + 1;
+        //     dispatch(setPage(nextPage)); // 다음 페이지로 이동
+        //     dispatch(fetchPosts(nextPage)); // 다음 페이지에 해당하는 데이터 요청
+        //   }
+        // };
+        
+        // const handlePreviousPage = () => {
+          //   if (page > 1) {
+          //     const previousPage = page - 1;
+          //     dispatch(setPage(previousPage)); // 이전 페이지로 이동
+          //     dispatch(fetchPosts(previousPage)); // 이전 페이지에 해당하는 데이터 요청
+          //   }
+        // };
 
-
-    const handleNextPage = () => {
-      if (hasMore) {
-        const nextPage = page + 1;
-        dispatch(setPage(nextPage)); // 다음 페이지로 이동
-        dispatch(fetchPosts(nextPage)); // 다음 페이지에 해당하는 데이터 요청
-      }
-    };
+      // console.log("posts.length" , posts.length);
+      console.log("startPage", startPage);
+      // console.log("바깥 endPage", startPage);
     
-    const handlePreviousPage = () => {
-      if (page > 1) {
-        const previousPage = page - 1;
-        dispatch(setPage(previousPage)); // 이전 페이지로 이동
-        dispatch(fetchPosts(previousPage)); // 이전 페이지에 해당하는 데이터 요청
-      }
-    };
     
-      if (status === 'loading') {
+    if (status === 'loading') {
         return <h2>Loading...</h2>;
       }
       
@@ -51,8 +107,8 @@ const ListPage = () => {
         return <h1>{error}</h1>;
       }
       
-    // console.log("status",status);
-  return (
+      // console.log("status",status);
+      return (
     <div className="container">
       {posts.map((post) => <Post key={post.id} post={post} />)}
        
@@ -61,49 +117,47 @@ const ListPage = () => {
           <h1>{`Inside viewport: ${inView ? 'Yes' : 'No'}`}</h1>
         </div> */}
         
-       <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginTop: '20px' }}>
-          <button
-            onClick={handlePreviousPage}
-            disabled={page === 1}
-            style={{ marginRight: '10px' , borderRadius: '5px' }}
-          >
+        <button 
+          onClick={handlePreviousGroup} disabled={pageGroup === 0} 
+          style={{ marginRight: '10px', borderRadius: '5px' }}>
             Previous
-          </button>
-          {/* <span style={{ backgroundColor: 'white', padding: '5px 10px', borderRadius: '5px' }}>
-            Page: {page}
-          </span> */}
-
-          {[...Array(10)].map((_, index) => {
-                    const page = index + 1;
-                    
+        </button>
+          
+          {/* {[...Array(posts.length)].map((_, index) => { */}
+           {[...Array(endPage - startPage + 1)].map((_, index) => { 
+                     const pageNumber = startPage + index;
+                    //  console.log("pageNumber", pageNumber);
+                     
                     return (
                         <button
-                            key={page}
-                            onClick={() => dispatch(fetchPosts(page))}
+                            key={pageNumber}
+                            // onClick={() => dispatch(fetchPosts(page))}
+                            onClick={() => {
+                              dispatch(setPage(pageNumber));
+                              dispatch(fetchPosts(pageNumber));
+                            }}
                             style={{
                                 margin: '5px',
                                 backgroundColor:'white'
                             }}
-                            // disabled={page === page}
+                            disabled={page === pageNumber} 
                         >
-                            {page}
+                            {pageNumber}
                         </button>
                     )
             })}
 
 
-          <button
-            onClick={handleNextPage}
-            // disabled={!hasMore}
-            disabled={page === 10}
-            style={{ marginLeft: '10px', borderRadius: '5px' }}
-          >
-            Next
-          </button>
+        <button 
+          onClick={handleNextGroup} disabled={!hasMore} 
+          style={{ marginLeft: '10px', borderRadius: '5px' }}>
+          Next
+        </button>
+
       </div>
 
       
-    </div>
+    
   );
 };
 

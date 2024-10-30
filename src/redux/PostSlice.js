@@ -1,6 +1,7 @@
 import { createSlice, createAsyncThunk, createSelector } from '@reduxjs/toolkit';
 import axios from 'axios';
 
+
 export const fetchPosts = createAsyncThunk(
   'posts/fetchPosts',
   async (pageParam, { rejectWithValue }) => {
@@ -18,6 +19,17 @@ export const fetchPosts = createAsyncThunk(
   }
 );
 
+// getState : 현재 상태를 가져오는 함수
+export const setPageAndFetchPosts = (nextPage) => (dispatch, getState) => {
+  // 페이지를 업데이트하고 최신 page 값으로 fetchPosts 호출
+  console.log("next page?");
+  
+  dispatch(setPage(nextPage));
+  const updatedPage = getState().posts.page;
+  dispatch(fetchPosts(updatedPage));
+};
+
+
 const postsSlice = createSlice({
   name: 'posts',
   initialState: {
@@ -26,6 +38,7 @@ const postsSlice = createSlice({
     status: 'idle', // 요청 상태
     error: null, // 에러 상태
     page: 1, // 현재 페이지 번호 , 무한스크롤때는 0 으로 설정
+    pageGroup: 0, 
     hasMore: null, // 더 불러올 데이터가 있는지 여부
   },
   reducers: {
@@ -39,7 +52,13 @@ const postsSlice = createSlice({
       console.log("페이지 번호: ", action.payload);
 
       state.page = action.payload; // 페이지 번호를 업데이트
-    }
+    },
+    setPageGroup: (state, action) => {  
+      // 페이지 그룹을 설정하는 액션 추가
+      console.log("페이지 그룹", action.payload);
+      
+      state.pageGroup = action.payload;
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -67,12 +86,13 @@ const selectPosts = (state) => state.posts.posts;
 const selectSearchTerm = (state) => state.posts.searchTerm;
 
 // 메모이제이션된 검색 결과 
+// 최초 렌더링 시에도 동작 -> 모든 selector가 처음 한 번 실행
 export const selectFilteredPosts = createSelector(
   [selectPosts, selectSearchTerm],
   (posts, searchTerm) => {
 
      // 메모이제이션 로깅: searchTerm과 posts가 바뀔 때만 실행됨
-     console.log('Selector executed: Recalculating filtered posts');
+    //  console.log('Memoization!');
     
     if (!searchTerm) return posts;
     
@@ -87,6 +107,6 @@ export const selectFilteredPosts = createSelector(
   }
 );
 
-export const { setSearchTerm, setPage } = postsSlice.actions;
+export const { setSearchTerm, setPage, setPageGroup } = postsSlice.actions;
 
 export default postsSlice.reducer;
