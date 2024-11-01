@@ -9,3 +9,10 @@ pageGroup	startPage 계산	endPage 계산	startPage	endPage
 4	        4 * 5 + 1 = 21	21 + 4 = 25	    21	        25
 
 
+pageNumber: startPage + index;
+                    1 + 0,1,2,3,4
+                    6 + 0,1,2,3 4
+
+
+
+                    

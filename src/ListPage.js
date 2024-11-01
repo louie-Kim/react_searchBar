@@ -13,41 +13,52 @@ const ListPage = () => {
     
     
     console.log("page",page); 
+
+
     // console.log("hasMore",hasMore); 
     // console.log("검색어로 조회된 포스팅수",posts);
     // console.log("status:",status);
     // 현재 페이지 그룹에 따른 시작 페이지와 끝 페이지 설정
-
-    // 현재 pageGroup에 기반 : 0 일때 만
+    
+    // 최초 pageGroup에 기반 : 0 일때 만
     const startPage = pageGroup * 5 + 1;
     const endPage = startPage + 4;
-
-    const handleNextGroup = () => {
-
+    
+    const handleNextGroup = async () => {
+      
       const newPageGroup = pageGroup + 1;
       dispatch(setPageGroup(newPageGroup));
       
-      console.log("newPageGroup", newPageGroup);
+      // console.log("newPageGroup", newPageGroup);
       
-       // pageGroup이 변경된 후의 값에 기반
+      // pageGroup이 변경된 후의 값에 기반
       const startPage = newPageGroup * 5 + 1; 
       const endPage = startPage + 4; 
       // console.log("버튼안 startPage", startPage);
       // console.log("버튼안 endPage", startPage);
       
-      // 페이지 범위 내의 각 페이지 데이터를 fetchPosts로 호출
-      for (let page = startPage; page <= endPage; page++) {
-          dispatch(fetchPosts(page));
+
+      // // 비동기로 나머지 페이지들 데이터는 준비되도록 함
+      // for (let nextPage = startPage ; nextPage <= endPage; nextPage++) {
+      //   dispatch(fetchPosts(nextPage));
+      // }
+
+      await dispatch(fetchPosts(startPage)); // 페이지 6의 데이터를 먼저 로드하여 렌더링
+
+      // 비동기로 나머지 페이지들 데이터 준비
+      for (let nextPage = startPage + 1; nextPage <= endPage; nextPage++) {
+        dispatch(fetchPosts(nextPage));
       }
       
     };
-  
+   
+    
     const handlePreviousGroup = () => {
       if (pageGroup > 0) {
         const newPageGroup = pageGroup - 1;
         dispatch(setPageGroup(newPageGroup));
     
-        console.log("newPageGroup", newPageGroup);
+        // console.log("newPageGroup", newPageGroup);
     
         // pageGroup이 변경된 후의 값에 기반
         const startPage = newPageGroup * 5 + 1;
@@ -56,8 +67,8 @@ const ListPage = () => {
         // console.log("버튼안 endPage", endPage);
     
         // 페이지 범위 내의 각 페이지 데이터를 fetchPosts로 호출
-        for (let page = startPage; page <= endPage; page++) {
-          dispatch(fetchPosts(page));
+        for (let prevPage = startPage; prevPage <= endPage; prevPage++) {
+          dispatch(fetchPosts(prevPage));
         }
       }
     };
@@ -86,17 +97,17 @@ const ListPage = () => {
         //   }
         // };
         
-        // const handlePreviousPage = () => {
-          //   if (page > 1) {
-          //     const previousPage = page - 1;
-          //     dispatch(setPage(previousPage)); // 이전 페이지로 이동
-          //     dispatch(fetchPosts(previousPage)); // 이전 페이지에 해당하는 데이터 요청
-          //   }
-        // };
+    // const handlePreviousPage = () => {
+      //   if (page > 1) {
+      //     const previousPage = page - 1;
+      //     dispatch(setPage(previousPage)); // 이전 페이지로 이동
+      //     dispatch(fetchPosts(previousPage)); // 이전 페이지에 해당하는 데이터 요청
+      //   }
+    // };
 
-      // console.log("posts.length" , posts.length);
-      console.log("startPage", startPage);
-      // console.log("바깥 endPage", startPage);
+      // console.log("posts" , posts);
+      // console.log("startPage", startPage);
+      // console.log("endPage", endPage);
     
     
     if (status === 'loading') {
@@ -110,7 +121,7 @@ const ListPage = () => {
       // console.log("status",status);
       return (
     <div className="container">
-      {posts.map((post) => <Post key={post.id} post={post} />)}
+      {/* {posts.map((post) => <Post key={post.id} post={post} />)} */}
        
         {/* 무한스크롤 */}
         {/* <div ref={ref} style={ { backgroundColor: 'white' } }>
@@ -123,29 +134,27 @@ const ListPage = () => {
             Previous
         </button>
           
-          {/* {[...Array(posts.length)].map((_, index) => { */}
-           {[...Array(endPage - startPage + 1)].map((_, index) => { 
-                     const pageNumber = startPage + index;
-                    //  console.log("pageNumber", pageNumber);
-                     
-                    return (
-                        <button
-                            key={pageNumber}
-                            // onClick={() => dispatch(fetchPosts(page))}
-                            onClick={() => {
-                              dispatch(setPage(pageNumber));
-                              dispatch(fetchPosts(pageNumber));
-                            }}
-                            style={{
-                                margin: '5px',
-                                backgroundColor:'white'
-                            }}
-                            disabled={page === pageNumber} 
-                        >
-                            {pageNumber}
-                        </button>
-                    )
-            })}
+        {[...Array(endPage - startPage + 1)].map((_, index) => { 
+                  const pageNumber = startPage + index;
+                //  console.log("pageNumber", pageNumber);
+                  
+                return (
+                    <button
+                        key={pageNumber}
+                        onClick={() => {
+                          dispatch(setPage(pageNumber));
+                          dispatch(fetchPosts(pageNumber));
+                        }}
+                        style={{
+                            margin: '5px',
+                            backgroundColor:'white'
+                        }}
+                        disabled={page === pageNumber} 
+                    >
+                        {pageNumber}
+                    </button>
+                )
+        })}
 
 
         <button 
@@ -153,6 +162,9 @@ const ListPage = () => {
           style={{ marginLeft: '10px', borderRadius: '5px' }}>
           Next
         </button>
+
+        {posts.map((post) => <Post key={post.id} post={post} />)}
+
 
       </div>
 

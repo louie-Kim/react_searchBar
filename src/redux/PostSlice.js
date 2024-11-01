@@ -33,13 +33,13 @@ export const setPageAndFetchPosts = (nextPage) => (dispatch, getState) => {
 const postsSlice = createSlice({
   name: 'posts',
   initialState: {
-    posts: [], // 모든 포스트 데이터
-    searchTerm: '', // 검색어 상태 추가
-    status: 'idle', // 요청 상태
-    error: null, // 에러 상태
+    posts: [], 
+    searchTerm: '', 
+    status: 'idle', 
+    error: null, 
     page: 1, // 현재 페이지 번호 , 무한스크롤때는 0 으로 설정
     pageGroup: 0, 
-    hasMore: null, // 더 불러올 데이터가 있는지 여부
+    hasMore: null, 
   },
   reducers: {
     setSearchTerm: (state, action) => {
@@ -71,6 +71,7 @@ const postsSlice = createSlice({
         
         state.status = 'succeeded';
         state.posts = action.payload; // 기존 데이터에 새로운 데이터를 추가
+       
         // state.page += 1 ;          // 무한스크롤때는 살리기
         state.hasMore = action.payload.length > 0; // 데이터가 더 없으면 hasMore를 false로 설정
       })
@@ -92,7 +93,7 @@ export const selectFilteredPosts = createSelector(
   (posts, searchTerm) => {
 
      // 메모이제이션 로깅: searchTerm과 posts가 바뀔 때만 실행됨
-    //  console.log('Memoization!');
+     console.log('Memoization!');
     
     if (!searchTerm) return posts;
     
