@@ -15,4 +15,28 @@ pageNumber: startPage + index;
 
 
 
+
+
+---------------------------------------------------------------------------
+
+커링(currying) 기법을 사용한 함수
+
+
+export const setPageAndFetchPosts = (nextPage) => (dispatch, getState) => {
+  // 페이지를 업데이트하고 최신 page 값으로 fetchPosts 호출
+  console.log("next page?", nextPage);
+  
+  dispatch(setPage(nextPage));
+  const updatedPage = getState().posts.page;
+  dispatch(fetchPosts(updatedPage));
+};
+
+
+const add = (a) => (b) => a + b;
+const addFive = add(5); // (b) => 5 + b
+console.log(addFive(3)); // 8
+
+
+
+
                     
