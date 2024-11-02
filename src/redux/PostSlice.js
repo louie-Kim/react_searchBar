@@ -19,10 +19,14 @@ export const fetchPosts = createAsyncThunk(
   }
 );
 
+
 // getState : 현재 상태를 가져오는 함수
+//  커링(currying) 기법을 사용한 함수
+//  첫 번째 함수는 원하는 매개변수를 전달
+//  두 번째 함수는 비동기 작업 내에서 dispatch와 getState를 사용할 수 있게(Redux Thunk 미들웨어에서 제공하는 함수)
 export const setPageAndFetchPosts = (nextPage) => (dispatch, getState) => {
   // 페이지를 업데이트하고 최신 page 값으로 fetchPosts 호출
-  console.log("next page?");
+  console.log("next page?", nextPage);
   
   dispatch(setPage(nextPage));
   const updatedPage = getState().posts.page;
@@ -100,7 +104,7 @@ export const selectFilteredPosts = createSelector(
     const noSpaceSearchTerm = searchTerm.replace(/\s+/g, '');
     
     return posts.filter((post) => {
-      console.log("Filter function executed"); // 필터 함수가 실행될 때마다 로깅
+      console.log("Memoization!"); // 필터 함수가 실행될 때마다 로깅
       const titleNoSpaces = post.title.replace(/\s+/g, '');
       const bodyNoSpaces = post.body.replace(/\s+/g, '');
       return titleNoSpaces.includes(noSpaceSearchTerm) || bodyNoSpaces.includes(noSpaceSearchTerm);
