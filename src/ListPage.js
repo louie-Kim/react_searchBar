@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchPosts, selectFilteredPosts, setPage, setPageAndFetchPosts, setPageGroup } from './redux/PostSlice';
 import { useInView } from "react-intersection-observer"
