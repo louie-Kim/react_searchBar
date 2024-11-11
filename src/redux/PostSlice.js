@@ -14,20 +14,20 @@ export const fetchPosts = createAsyncThunk(
       console.log("Fetched data:", response.data); 
       return response.data; // 데이터와 페이지 정보를 반환
     } catch (error) {
-      return rejectWithValue(error.response.data); // -> state.error = action.payload 로전달
+      return rejectWithValue(error.response.data); // -> state.error = action.payload 로 에러전달
     }
   }
 );
 
 
-// getState : 현재 상태를 가져오는 함수
+//  getState : 현재 상태를 가져오는 함수
 //  커링(currying) 기법을 사용한 함수
 //  첫 번째 함수는 원하는 매개변수를 전달
 //  두 번째 함수는 비동기 작업 내에서 dispatch와 getState를 사용할 수 있게(Redux Thunk 미들웨어에서 제공하는 함수)
 export const setPageAndFetchPosts = (nextPage) => (dispatch, getState) => {
   // 페이지를 업데이트하고 최신 page 값으로 fetchPosts 호출
   console.log("next page?", nextPage);
-  
+  // 페이지 그룹의 첫 페이지를 가져오도록 설계
   dispatch(setPage(nextPage));
   const updatedPage = getState().posts.page;
   dispatch(fetchPosts(updatedPage));
